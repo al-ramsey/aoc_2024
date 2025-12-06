@@ -4,6 +4,24 @@ useful functions for the advent of code
 
 # random
 
+def all_occ(l : list, el):
+    '''find the indices of all occurrances of el in l
+
+    Parameters
+    ----------
+    l : _list_
+        list to search for el
+    el : _Any_
+        element of l to search for
+
+    Returns
+    -------
+    inds : _list_
+        list of indices i such that `l[i] == el`
+    '''
+    inds = [i for i, x in enumerate(l) if x == el]
+    return inds
+
 def dict_adder(d : dict, s, n : int):
     '''if d is a dictionary storing an integer for each key, add n to the value of the key s
 
@@ -28,6 +46,72 @@ def dict_adder(d : dict, s, n : int):
     
     return d
 
+def find_ints(s : str):
+    '''find all the integers appearing in the string `s`
+
+    Parameters
+    ----------
+    s : _str_
+        string to search for integers
+
+    Returns
+    -------
+    l : _list_
+        list of integers in s, e.g. '12juv3nk222' -> [12, 3, 222]
+    '''
+    l = []
+    i = 0
+    while i < len(s):
+        working = True
+        integer = ""
+        while working:
+            try:
+                n = int(s[i:i+1])
+                integer += str(n)
+                i += 1
+            except ValueError:
+                working = False
+                i +=1
+
+        if integer != "":
+            l.append(int(integer))
+
+    return l
+
+def find_ints_in_list(l: list):
+    '''find all the integers appearing in the list `l`
+
+    Parameters
+    ----------
+    l : _list_
+        list to search for integers
+
+    Returns
+    -------
+    _list_
+        list of integers in l, e.g. [12,juv3,nk222] -> [12, 3, 222]
+    '''
+    s = ""
+    for el in l:
+        s += str(el)
+
+    return(find_ints(s))
+
+def flatten(l : list):
+    '''flatten list of lists
+
+    Parameters
+    ----------
+    l : _list_
+        list of lists to flatten
+
+    Returns
+    -------
+    _list_
+        flat(er) list
+    '''
+    return [x for xs in l for x in xs]
+
 def periodic(n : str):
     '''check if a string is periodic
 
@@ -50,48 +134,25 @@ def periodic(n : str):
             
     return False
 
-def flatten(l : list):
-    '''flatten list of lists
+def product(l : list):
+    '''product of items in a list
 
     Parameters
     ----------
     l : _list_
-        list of lists to flatten
+        list of items to multiply
 
     Returns
     -------
-    _list_
-        flat(er) list
+    prod : _Any_
+        product of items in the list
     '''
-    return [x for xs in l for x in xs]
+    prod = 1
+    for el in l:
+        prod*=el
+    return prod
 
 # grid functions
-
-def surroundings(en : list | tuple, lines : list):
-    '''find the surrounding (non-diagonal) squares of a square `en` in a grid `lists`
-
-    Parameters
-    ----------
-    en : _list | tuple_
-        middle point of the form (i,j) or [i,j]
-    lines : _list_
-        grid (list of lines)
-
-    Returns
-    -------
-    cs : _list_
-        list of surrounding (non-diagonal) coordinates 
-    '''
-    i = en[0]
-    j = en[1]
-    left = (i, j-1)
-    right = (i, j+1)
-    up = (i+1, j)
-    down = (i-1, j)
-    cs = [left, right, up, down]
-    cs = [c for c in cs if (c[0] >= 0 and c[0] < len(lines) and c[1] >= 0 and c[1] < len(lines[0]))]
-
-    return cs
 
 def diag_surroundings(en : list | tuple, lines : list):
     '''find the surrounding (including diagonal) squares of a square `en` in a grid `lists`
@@ -123,6 +184,45 @@ def diag_surroundings(en : list | tuple, lines : list):
 
     return cs
 
+def find(char, lines : list):
+    '''find coordinates of all appearances of `char` in the grid `lines`
+
+    Parameters
+    ----------
+    char : _Any_
+        thing to find in grid
+    lines : _list_
+        grid (list of lines)
+
+    Returns
+    -------
+    appearances : _list_
+        list of all coordinates where `char` appears in `lines`
+    '''
+    appearances = []
+    for i in range(len(lines)):
+        for j in range(len(lines[0])):
+            if lines[i][j] == char:
+                appearances.append((i,j))
+    
+    return appearances
+
+def flip(l):
+    '''flip a grid across leading diagonal
+
+    Parameters
+    ----------
+    l : _list_
+        grid (list of lists)
+
+    Returns
+    -------
+    new_l : _list_
+        transpose of l
+    '''
+    new_l = [[l[i][j] for i in range(len(l))] for j in range(len(l[0]))]
+    return new_l
+
 def replace_l(lines : list, l : list, r):
     '''replace coordinates in the list `l` by `r`
 
@@ -152,28 +252,31 @@ def replace_l(lines : list, l : list, r):
     
     return newlines
 
-def find(char, lines : list):
-    '''find coordinates of all appearances of `char` in the grid `lines`
+def surroundings(en : list | tuple, lines : list):
+    '''find the surrounding (non-diagonal) squares of a square `en` in a grid `lists`
 
     Parameters
     ----------
-    char : _Any_
-        thing to find in grid
+    en : _list | tuple_
+        middle point of the form (i,j) or [i,j]
     lines : _list_
         grid (list of lines)
 
     Returns
     -------
-    appearances : _list_
-        list of all coordinates where `char` appears in `lines`
+    cs : _list_
+        list of surrounding (non-diagonal) coordinates 
     '''
-    appearances = []
-    for i in range(len(lines)):
-        for j in range(len(lines[0])):
-            if lines[i][j] == char:
-                appearances.append((i,j))
-    
-    return appearances
+    i = en[0]
+    j = en[1]
+    left = (i, j-1)
+    right = (i, j+1)
+    up = (i+1, j)
+    down = (i-1, j)
+    cs = [left, right, up, down]
+    cs = [c for c in cs if (c[0] >= 0 and c[0] < len(lines) and c[1] >= 0 and c[1] < len(lines[0]))]
+
+    return cs
 
 # optimisation
 
@@ -196,6 +299,31 @@ def dict_update(d : dict, key, val):
     '''
     d[key] = val
     return d
+
+def mem_func_list(func, el : list):
+    '''apply a memoized func to every element in a list
+
+    Parameters
+    ----------
+    func : _function_
+        function to be applied
+    el : _list_
+        list to have func applied to
+
+    Returns
+    -------
+    new_list : _list_
+        el, with func having been efficiently applied to each element
+
+    !!!untested!!!
+    '''
+    vals = {}
+    new_list = []
+    for l in el:
+        v, vals = memoize(func, vals)(l)
+        new_list.append(v)
+
+    return new_list
 
 def memoize(func, vals : dict):
     '''take in a function and a dictionary of known values, and output a function which checks against those values first (returning new values too)
@@ -225,28 +353,3 @@ def memoize(func, vals : dict):
             return (vals[l], vals)
     
     return m
-
-def mem_func_list(func, el : list):
-    '''apply a memoized func to every element in a list
-
-    Parameters
-    ----------
-    func : _function_
-        function to be applied
-    el : _list_
-        list to have func applied to
-
-    Returns
-    -------
-    new_list : _list_
-        el, with func having been efficiently applied to each element
-
-    !!!untested!!!
-    '''
-    vals = {}
-    new_list = []
-    for l in el:
-        v, vals = memoize(func, vals)(l)
-        new_list.append(v)
-
-    return new_list
